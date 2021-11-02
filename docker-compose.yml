@@ -1,0 +1,82 @@
+version: '3'  
+
+services:
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
+    container_name: nextcloud-proxy
+    networks:
+      - nextcloud_network
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+
+      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
+      - ./nginx/html:/usr/share/nginx/html:rw
+      - ./nginx/certs:/etc/nginx/certs:ro
+
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+    restart: unless-stopped
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nextcloud-letsencrypt
+    depends_on:
+      - nginx-proxy
+    networks:
+      - nextcloud_network
+    volumes:
+
+      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
+      - ./nginx/html:/usr/share/nginx/html:rw
+      - ./nginx/certs:/etc/nginx/certs:rw
+
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    restart: unless-stopped
+
+  mysql:
+    image: mariadb
+    container_name: nextcloud-mysql
+    networks:
+      - nextcloud_network
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=123-Qaz!
+      - MYSQL_PASSWORD=P@ssw0rd
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    restart: unless-stopped
+
+  nextcloud-app:
+    image: nextcloud:latest
+    container_name: nextcloud-app
+    networks:
+      - nextcloud_network
+    depends_on:
+      - letsencrypt
+      - nginx-proxy
+      - mysql
+    volumes:
+      - ./app/html:/var/www/html
+      - ./app/config:/var/www/html/config
+      - ./app/custom_apps:/var/www/html/custom_apps
+      - ./app/data:/var/www/html/data
+      - ./app/themes:/var/www/html/themes
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - VIRTUAL_HOST=localhost
+      - LETSENCRYPT_HOST=localhost
+      - LETSENCRYPT_EMAIL=romess.amm@google.com
+    restart: unless-stopped
+
+networks:
+  nextcloud_network:
