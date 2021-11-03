@@ -43,6 +43,7 @@ services:
 
   mysql:
     image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed
     container_name: nextcloud-mysql
     networks:
       - nextcloud_network
