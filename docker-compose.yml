@@ -17,7 +17,8 @@ services:
       - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
       - ./nginx/html:/usr/share/nginx/html:rw
       - ./nginx/certs:/etc/nginx/certs:ro
-
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/log:/var/log/nginx
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
