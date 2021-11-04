@@ -18,9 +18,10 @@ sudo pip3 install docker-compose
 
 mkdir nextcloud
 cd nextcloud/
-mkdir -p nginx/{certs,vhost.d,html}
+mkdir -p nginx/{certs,vhost.d,html,conf.d}
 mkdir mysql
 mkdir -p app/{config,custom_apps,data,themes,html}
+echo "client_max_body_size 5000M;" > nginx/conf.d/max_body_size.conf
 
 echo "Deploying docker-compose.yml"
 sudo docker-compose up -d
