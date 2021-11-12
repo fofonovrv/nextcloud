@@ -5,7 +5,7 @@ echo "Start deploying NextCloud"
 sudo apt-get update -y
 sudo apt-get upgrade -y
 echo "Installing packages"
-sudo apt-get instal -y lynx, net-tools
+sudo apt-get install -y lynx net-tools
 
 echo "Installing Docker"
 curl -fsSL test.docker.com -o get-docker.sh && sh get-docker.sh
